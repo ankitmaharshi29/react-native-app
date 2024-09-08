@@ -3,6 +3,7 @@ import { Text, View, StyleSheet, FlatList, Image, TouchableOpacity, Dimensions }
 import { Video } from 'expo-av'; // Import Expo AV for video handling
 import imageData from '../data/res.json';
 import Header from './TagsNav';
+import { MaterialIcons, FontAwesome, Feather } from '@expo/vector-icons'; // Import vector icons
 
 const Home = ({ userData }) => {
   const [filteredMedia, setFilteredMedia] = useState(imageData.list); // State to store filtered media items
@@ -37,30 +38,48 @@ const Home = ({ userData }) => {
 
   // Render each media item (either an image or a video)
   const renderItem = ({ item, index }) => (
-    <View style={styles.mediaContainer}>
-      {item.type === 'image' ? (
-        <Image source={{ uri: item.image }} style={styles.media} />
-      ) : (
-        <Video
-          source={{ uri: item.video }}
-          rate={1.0}
-          volume={1.0}
-          isMuted={false}
-          resizeMode="cover"
-          shouldPlay={playingVideoIndex === index}
-          isLooping={true}
-          style={styles.media}
-          useNativeControls
-          onPlaybackStatusUpdate={(status) => status.didJustFinish && setPlayingVideoIndex(null)}
-        />
-      )}
-      {/* User image overlay */}
-      <Image source={{ uri: userImage }} style={styles.userImageOverlay} />
+    <View style={styles.mediaItemContainer}>
+      <View style={styles.mediaContainer}>
+        {item.type === 'image' ? (
+          <Image source={{ uri: item.image }} style={styles.media} />
+        ) : (
+          <Video
+            source={{ uri: item.video }}
+            rate={1.0}
+            volume={1.0}
+            isMuted={false}
+            resizeMode="cover"
+            shouldPlay={playingVideoIndex === index}
+            isLooping={true}
+            style={styles.media}
+            useNativeControls
+            onPlaybackStatusUpdate={(status) => status.didJustFinish && setPlayingVideoIndex(null)}
+          />
+        )}
+        {/* User image overlay */}
+        <Image source={{ uri: userImage }} style={styles.userImageOverlay} />
+      </View>
       
-      {/* Download button */}
-      <TouchableOpacity style={styles.downloadButton} onPress={() => alert('Download functionality not implemented')}>
-        <Text style={styles.downloadButtonText}>Download</Text>
-      </TouchableOpacity>
+      {/* Buttons Container */}
+      <View style={styles.buttonContainer}>
+        {/* Share Button */}
+        <TouchableOpacity style={[styles.actionButton, styles.shareButton]} onPress={() => alert('Share functionality not implemented')}>
+          <FontAwesome name="whatsapp" size={24} color="white" />
+          <Text style={styles.buttonText}>Share</Text>
+        </TouchableOpacity>
+
+        {/* Download Button */}
+        <TouchableOpacity style={[styles.actionButton, styles.downloadButton]} onPress={() => alert('Download functionality not implemented')}>
+          <MaterialIcons name="file-download" size={24} color="white" />
+          <Text style={styles.buttonText}>Download</Text>
+        </TouchableOpacity>
+
+        {/* Edit Button */}
+        <TouchableOpacity style={[styles.actionButton, styles.editButton]} onPress={() => alert('Edit functionality not implemented')}>
+          <Feather name="edit" size={24} color="white" />
+          <Text style={styles.buttonText}>Edit</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -92,9 +111,12 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     alignItems: 'center',
   },
-  mediaContainer: {
-    marginBottom: 20,
+  mediaItemContainer: {
     width: Dimensions.get('window').width,
+    marginBottom: 20,
+  },
+  mediaContainer: {
+    width: '100%',
     height: 380,
     borderRadius: 8,
     overflow: 'hidden',
@@ -123,17 +145,41 @@ const styles = StyleSheet.create({
     left: '50%',
     transform: [{ translateX: -30 }, { translateY: -30 }],
   },
-  downloadButton: {
-    marginTop: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    backgroundColor: '#03DAC6',
-    borderRadius: 25,
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    width: '100%',
+    paddingVertical: 10,
+    backgroundColor: '#fff',
+    borderRadius: 8, // Add border radius for rounded corners
   },
-  downloadButtonText: {
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6, // Decrease height
+    paddingHorizontal: 25, // Increase width
+    borderRadius: 25,
+    marginHorizontal: 5,
+    minWidth: 120, // Minimum width to ensure buttons are not too narrow
+  },
+  shareButton: {
+    
+    backgroundColor: '#25D366', // Green color like WhatsApp
+  },
+  downloadButton: {
+    width:150, 
+       backgroundColor: '#9b59b6', // Light purple color
+  },
+  editButton: {
+    backgroundColor: '#d3d3d3', // Very light gray color
+  },
+  buttonText: {
     color: '#fff',
     fontSize: 14,
     fontWeight: 'bold',
+    marginLeft: 5,
+    textAlign: 'center', // Center the text
   },
 });
 
