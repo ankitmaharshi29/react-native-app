@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Text, View, StyleSheet, FlatList, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { Video } from 'expo-av'; // Import Expo AV for video handling
-import Share from 'react-native-share'; // Import react-native-share for sharing functionality
 import imageData from '../data/res.json';
 import Header from './TagsNav';
 
@@ -36,26 +35,6 @@ const Home = ({ userData }) => {
     }
   }).current;
 
-  // Share media using react-native-share
-  const shareMedia = async (mediaUrl) => {
-    try {
-      const shareOptions = {
-        title: 'Share Media',
-        url: mediaUrl, // Media URL to be shared
-        failOnCancel: false,
-      };
-
-      const result = await Share.open(shareOptions);
-      if (result.action === Share.sharedAction) {
-        console.log('Media shared successfully');
-      } else if (result.action === Share.dismissedAction) {
-        console.log('Media sharing dismissed');
-      }
-    } catch (error) {
-      console.error('Error sharing media:', error);
-    }
-  };
-
   // Render each media item (either an image or a video)
   const renderItem = ({ item, index }) => (
     <View style={styles.mediaContainer}>
@@ -81,11 +60,6 @@ const Home = ({ userData }) => {
       {/* Download button */}
       <TouchableOpacity style={styles.downloadButton} onPress={() => alert('Download functionality not implemented')}>
         <Text style={styles.downloadButtonText}>Download</Text>
-      </TouchableOpacity>
-
-      {/* Share button */}
-      <TouchableOpacity style={styles.shareButton} onPress={() => shareMedia(item.type === 'image' ? item.image : item.video)}>
-        <Text style={styles.shareButtonText}>Share</Text>
       </TouchableOpacity>
     </View>
   );
@@ -157,18 +131,6 @@ const styles = StyleSheet.create({
     borderRadius: 25,
   },
   downloadButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  shareButton: {
-    marginTop: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    backgroundColor: '#6200EE',
-    borderRadius: 25,
-  },
-  shareButtonText: {
     color: '#fff',
     fontSize: 14,
     fontWeight: 'bold',
