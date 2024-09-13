@@ -1,18 +1,23 @@
-// components/Dashboard.js
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import Home from './Home';
 import Profile from './Profile';
+import Update from './Update';
 
-const Dashboard = ({ userData, onLogout }) => {
+const Dashboard = ({ userData, onLogout, navigation }) => {
   const [selectedTab, setSelectedTab] = useState('Home'); // Default tab is 'Home'
 
   return (
     <View style={styles.container}>
+      <Update />
       {/* Content Section */}
       <View style={styles.content}>
-        {selectedTab === 'Home' ? <Home userData={userData}/> : <Profile userData={userData} onLogout={onLogout} />}
+        {selectedTab === 'Home' ? (
+          <Home userData={userData} />
+        ) : (
+          <Profile userData={userData} onLogout={onLogout} navigation={navigation} />
+        )}
       </View>
 
       {/* Bottom Navigation Bar */}
@@ -66,11 +71,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderColor: '#ddd',
-    height:70
+    height: 70
   },
   navItem: {
     alignItems: 'center',
-
   },
 });
 

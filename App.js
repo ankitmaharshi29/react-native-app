@@ -1,31 +1,42 @@
-// App.js
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 import LoginComponent from './components/auth';
 import Dashboard from './components/Dashboard';
+import Settings from './components/settings';// Import Settings component
+
+const Stack = createStackNavigator();
 
 export default function App() {
   const [showDashboard, setShowDashboard] = useState(false);
   const [userData, setUserData] = useState(null);
 
-  const handleLogin = (user) => {  // Accept user data from LoginComponent
-    setShowDashboard(true);  // Show the Dashboard when login is successful
-    setUserData(user);  // Set user data after login
+  const handleLogin = (user) => {
+    setShowDashboard(true);
+    setUserData(user);
   };
 
   const handleLogout = () => {
-    setShowDashboard(false);  // Go back to login screen
-    setUserData(null);  // Clear user data
+    setShowDashboard(false);
+    setUserData(null);
   };
 
   return (
-    <View style={styles.container}>
-      {!showDashboard ? (
-        <LoginComponent onLogin={handleLogin} />  // Pass handleLogin to LoginComponent
-      ) : (
-        <Dashboard userData={userData} onLogout={handleLogout} /> 
-      )}
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator>
+        {!showDashboard ? (
+          <Stack.Screen name="Login">
+            {(props) => <LoginComponent {...props} onLogin={handleLogin} />}
+          </Stack.Screen>
+        ) : (
+          <Stack.Screen name="Dashboard">
+            {(props) => <Dashboard {...props} userData={userData} onLogout={handleLogout} />}
+          </Stack.Screen>
+        )}
+        <Stack.Screen name="Settings" component={Settings} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
@@ -35,3 +46,4 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
 });
+

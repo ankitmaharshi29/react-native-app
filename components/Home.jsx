@@ -1,42 +1,79 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Text, View, StyleSheet, FlatList, Image, TouchableOpacity, Dimensions } from 'react-native';
-import { Video } from 'expo-av'; // Import Expo AV for video handling
-import imageData from '../data/res.json';
+import { Video } from 'expo-av';
 import Header from './TagsNav';
-import { MaterialIcons, FontAwesome, Feather } from '@expo/vector-icons'; // Import vector icons
+import { MaterialIcons, FontAwesome, Feather } from '@expo/vector-icons';
+import { getMedias } from '../services/apis';
+import Share from 'react-native-share'; // Import react-native-share
+
 
 const Home = ({ userData }) => {
-  const [filteredMedia, setFilteredMedia] = useState(imageData.list); // State to store filtered media items
-  const [playingVideoIndex, setPlayingVideoIndex] = useState(null); // State to manage video playback
-  const flatListRef = useRef(null); // Ref to manage FlatList scrolling
+  const [filteredMedia, setFilteredMedia] = useState([]);
+  const [allMedia, setAllMedia] = useState([]);
+  const [playingVideoIndex, setPlayingVideoIndex] = useState(null);
+  const [filteredTags, setFilteredTags] = useState([]);
+  const flatListRef = useRef(null);
 
-  const userImage = userData.img; // User image for overlay
+  const userImage = userData?.img || '';
 
-  // Filter media items based on selected tag
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const mediaData = await getMedias();
+        setAllMedia(mediaData.list || []);
+        setFilteredMedia(mediaData.list || []);
+        
+        // Dynamically extract tags based on available media
+        const tagsInMedia = new Set(['all']); // Always include 'all'
+        mediaData.list.forEach(item => {
+          if (Array.isArray(item.tag)) {
+            item.tag.forEach(tag => tagsInMedia.add(tag));
+          } else {
+            tagsInMedia.add(item.tag);
+          }
+        });
+        setFilteredTags([...tagsInMedia]); // Convert Set to Array and set state
+      } catch (error) {
+        console.error('Error fetching media data:', error);
+      }
+    };
+    fetchData();
+  }, []);
+
   const filterMedia = (tag) => {
     if (tag === 'all') {
-      setFilteredMedia(imageData.list); // Show all media if "all" is selected
+      setFilteredMedia(allMedia);
     } else {
-      const filteredItems = imageData.list.filter(
+      const filteredItems = allMedia.filter(
         (item) => item.tag === tag || (Array.isArray(item.tag) && item.tag.includes(tag))
       );
       setFilteredMedia(filteredItems);
     }
   };
 
-  // FlatList viewability configuration to manage video playback
   const viewabilityConfig = {
     itemVisiblePercentThreshold: 50,
   };
 
-  // Callback when viewable items change to manage which video is playing
   const onViewableItemsChanged = useRef(({ viewableItems }) => {
     if (viewableItems.length > 0) {
       setPlayingVideoIndex(viewableItems[0].index);
     }
   }).current;
 
-  // Render each media item (either an image or a video)
+  const handleShare = async (uri) => {
+    try {
+      const shareOptions = {
+        title: 'Share Media',
+        message: 'Check out this amazing content!',
+        url: uri,
+      };
+      await Share.open(shareOptions);
+    } catch (error) {
+      
+    }
+  };
+
   const renderItem = ({ item, index }) => (
     <View style={styles.mediaItemContainer}>
       <View style={styles.mediaContainer}>
@@ -56,44 +93,44 @@ const Home = ({ userData }) => {
             onPlaybackStatusUpdate={(status) => status.didJustFinish && setPlayingVideoIndex(null)}
           />
         )}
-        {/* User image overlay */}
         <Image source={{ uri: userImage }} style={styles.userImageOverlay} />
       </View>
-      
-      {/* Buttons Container */}
+
       <View style={styles.buttonContainer}>
-        {/* Share Button */}
-        <TouchableOpacity style={[styles.actionButton, styles.shareButton]} onPress={() => alert('Share functionality not implemented')}>
+        <TouchableOpacity
+          style={[styles.actionButton, styles.shareButton]}
+          onPress={() => handleShare(item.type === 'image' ? item.image : item.video)}
+        >
           <FontAwesome name="whatsapp" size={24} color="white" />
           <Text style={styles.buttonText}>Share</Text>
         </TouchableOpacity>
 
-        {/* Download Button */}
         <TouchableOpacity style={[styles.actionButton, styles.downloadButton]} onPress={() => alert('Download functionality not implemented')}>
           <MaterialIcons name="file-download" size={24} color="white" />
           <Text style={styles.buttonText}>Download</Text>
         </TouchableOpacity>
 
-        {/* Edit Button */}
         <TouchableOpacity style={[styles.actionButton, styles.editButton]} onPress={() => alert('Edit functionality not implemented')}>
           <Feather name="edit" size={24} color="white" />
           <Text style={styles.buttonText}>Edit</Text>
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity style={styles.newButton} onPress={() => alert('New functionality not implemented')}>
+        <Text style={styles.newButtonText}>अपनी फोटो बदले</Text>
+      </TouchableOpacity>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      {/* Render Header component and pass necessary props */}
-      <Header imageData={imageData.list} onSelectTag={filterMedia} />
-
-      {/* Media items list */}
+      {/* Pass filteredTags to Header component */}
+      <Header tags={filteredTags} onSelectTag={filterMedia} />
       <FlatList
         ref={flatListRef}
         data={filteredMedia}
         renderItem={renderItem}
-        keyExtractor={(_, index) => index.toString()}
+        keyExtractor={(item, index) => item.id || index.toString()} // Ensure a unique key
         viewabilityConfig={viewabilityConfig}
         onViewableItemsChanged={onViewableItemsChanged}
         contentContainerStyle={styles.scrollView}
@@ -101,6 +138,8 @@ const Home = ({ userData }) => {
     </View>
   );
 };
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -152,34 +191,45 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingVertical: 10,
     backgroundColor: '#fff',
-    borderRadius: 8, // Add border radius for rounded corners
+    borderRadius: 8,
   },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 6, // Decrease height
-    paddingHorizontal: 25, // Increase width
+    paddingVertical: 6,
+    paddingHorizontal: 25,
     borderRadius: 25,
     marginHorizontal: 5,
-    minWidth: 120, // Minimum width to ensure buttons are not too narrow
+    minWidth: 120,
   },
   shareButton: {
-    
-    backgroundColor: '#25D366', // Green color like WhatsApp
+    backgroundColor: '#25D366',
   },
   downloadButton: {
-    width:150, 
-       backgroundColor: '#9b59b6', // Light purple color
+    backgroundColor: '#9b59b6',
   },
   editButton: {
-    backgroundColor: '#d3d3d3', // Very light gray color
+    backgroundColor: '#d3d3d3',
   },
   buttonText: {
     color: '#fff',
     fontSize: 14,
     fontWeight: 'bold',
     marginLeft: 5,
-    textAlign: 'center', // Center the text
+    textAlign: 'center',
+  },
+  newButton: {
+    alignSelf: 'center',
+    backgroundColor: '#007BFF',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    marginTop: 10,
+  },
+  newButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

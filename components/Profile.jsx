@@ -1,10 +1,19 @@
-// components/Profile.js
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons'; // Import the icon you need
 
-const Profile = ({ userData, onLogout }) => {
+const Profile = ({ userData, onLogout, navigation }) => {
   return (
     <View style={styles.container}>
+      {/* Settings Icon and Text */}
+      <TouchableOpacity
+        style={styles.settingsButton}
+        onPress={() => navigation.navigate('Settings')} // Navigate to the Settings screen
+      >
+        <MaterialIcons name="settings" size={30} color="#333" />
+        <Text style={styles.settingsText}>Settings</Text>
+      </TouchableOpacity>
+
       {/* Profile Card */}
       <View style={styles.profileCard}>
         {/* Profile Image */}
@@ -26,9 +35,23 @@ const Profile = ({ userData, onLogout }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#fff', // Set background to white
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  settingsButton: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingTop: 10, // Add some padding on top
+    zIndex: 1, // Ensure the icon is above other components
+  },
+  settingsText: {
+    fontSize: 18,
+    color: '#333',
+    marginLeft: 10, // Space between icon and text
   },
   profileCard: {
     width: '85%',

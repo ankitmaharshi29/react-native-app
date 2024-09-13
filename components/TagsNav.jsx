@@ -1,12 +1,7 @@
-// Header.js
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-const Header = ({ imageData, onSelectTag }) => {
-  // Extract unique tags from media items and add 'all' to show all media items
-  const availableTags = Array.from(new Set(imageData.map((item) => item.tag).flat()));
-  const allTags = ['all', ...availableTags];
-
+const Header = ({ tags, onSelectTag }) => {
   const [selectedTag, setSelectedTag] = useState('all'); // State to track the selected tag
 
   // Handle tag selection and notify parent component
@@ -17,9 +12,9 @@ const Header = ({ imageData, onSelectTag }) => {
 
   return (
     <View style={styles.header}>
-      {allTags.map((tag) => (
+      {tags.map((tag, index) => (
         <TouchableOpacity
-          key={tag}
+          key={index} // Use index as part of the key
           style={[styles.button, selectedTag === tag && styles.selectedButton]}
           onPress={() => handleTagSelection(tag)}
         >
@@ -31,6 +26,8 @@ const Header = ({ imageData, onSelectTag }) => {
     </View>
   );
 };
+
+
 
 const styles = StyleSheet.create({
   header: {
