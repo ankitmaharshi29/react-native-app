@@ -95,4 +95,5 @@ const styles = StyleSheet.create({
   },
 });
 
+// Export the component
 export default Settings;

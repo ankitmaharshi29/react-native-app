@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import LoginComponent from './components/auth';
+import LoginSignUpComponent from './components/auth';
 import Dashboard from './components/Dashboard';
-import Settings from './components/settings';// Import Settings component
+import Settings from './components/settings';
 
 const Stack = createStackNavigator();
 
@@ -27,7 +27,7 @@ export default function App() {
       <Stack.Navigator>
         {!showDashboard ? (
           <Stack.Screen name="Login">
-            {(props) => <LoginComponent {...props} onLogin={handleLogin} />}
+            {(props) => <LoginSignUpComponent {...props} onLogin={handleLogin} />}
           </Stack.Screen>
         ) : (
           <Stack.Screen name="Dashboard">
@@ -46,4 +46,3 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
 });
-

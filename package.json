@@ -4,7 +4,7 @@
   "main": "expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo run:android",
+    "android": "ex`spo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web"
   },
@@ -12,6 +12,7 @@
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/stack": "^6.4.1",
+    "axios": "^1.7.7",
     "expo": "~51.0.28",
     "expo-av": "~14.0.7",
     "expo-dev-client": "~4.0.26",
